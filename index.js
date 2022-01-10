@@ -1,4 +1,4 @@
-const PORT = 8000
+const PORT = process.env.PORT || 8000
 const express = require('express')
 const axios = require('axios')
 const cheerio = require('cheerio')
@@ -6,12 +6,6 @@ const { response } = require('express')
 const app = express()
 
 
-//expand this to youtube
-//add another section
-//add region condition
-//double filter option
-//filter China -> Xi jin ping
-//filter Korea ->
 const newspaper=[
     {
         name:'thetimes',
@@ -47,8 +41,22 @@ const newspaper=[
         name:'abc',
         address:'https://abcnews.go.com/International/',
         base:'',
+    },
+    {
+        name:'bbc',
+        address:'https://www.bbc.com/news/world/asia',
+        base: 'https://www.bbc.com'
+    },
+    {
+        name:'straitstimes',
+        address:'https://www.straitstimes.com/asia',
+        base: 'https://www.straitstimes.com'
+    },
+    {
+        name:'scmp',
+        address:'https://www.scmp.com/',
+        base: 'https://www.scmp.com/'
     }
-
 ]
 
 //function to remove space
@@ -69,11 +77,6 @@ const korea_articles=[]
 //collecting all articles for US and china relations
 const china_us_articles=[]
 
-//wild fire
-const fire =[]
-
-//killed
-const kill =[]
 
 //goes through each newspaper and looks at the anchor for keyword: China
 newspaper.forEach(newspaper=>{
@@ -86,7 +89,7 @@ newspaper.forEach(newspaper=>{
        const $ = cheerio.load(html)
         //basically a loop that finds all "Chin" in anchor tag
         //usually headers can be chinese or chin
-       $('a:contains("Chin")', html).each(function(){
+       $('a:contains("China")', html).each(function(){
             const title = removeExtraSpace($(this).text())
             const url = $(this).attr('href')
             //filters out China tabs with anchors
@@ -148,21 +151,6 @@ newspaper.forEach(newspaper=>{
                 source: newspaper.name
             })
         })
-        $('a:contains("kill")', html).each(function(){
-            const title = $(this).text()
-            const url = $(this).attr('href')
-            //pushing objects to array
-            kill.push({
-                title,
-                url:  newspaper.base + url,
-                source: newspaper.name
-            })
-            korea_articles.push({
-                title,
-                url:  newspaper.base + url,
-                source: newspaper.name
-            })
-        })
 
     })
 })
@@ -194,12 +182,46 @@ app.get('/china_us', (req, res) =>{
     res.json(china_us_articles)
 })
 
-app.get('/tragedy', (req, res) =>{
-    res.json(kill)
+
+app.get('/news/disease', (req, res) =>{
+    const specificArticles = []
+    articles.forEach(articles=>{
+        title = articles.title
+        title = title.toLowerCase()
+        if(title.includes("virus") || title.includes("covid")){
+            specificArticles.push({
+                title,
+                url: articles.url,
+                source: articles.source,
+                section: "disease"
+            })
+        }
+        //console.log(title)   
+    })
+    res.json(specificArticles)
 })
 
+app.get('/news/conflict', (req, res) =>{
+    const specificArticles = []
+    articles.forEach(articles=>{
+        title = articles.title
+        title = title.toLowerCase()
+        if(title.includes("war") || title.includes("tensions") || title.includes("missle") || title.includes("attack")){
+            specificArticles.push({
+                title,
+                url: articles.url,
+                source: articles.source,
+                section: "conflict"
+            })
+        }
+        //console.log(title)   
+    })
+    res.json(specificArticles)
+})
+
+
 //parses for all 3 countries from newspaperId
-app.get('/news/:newspaperId', async(req,res) =>{
+app.get('/news/:newspaperId', (req,res) =>{
     //fetches data based on the newpaperId inputted
     const newspaperId = req.params.newspaperId
     //filters from newspaper containing all 3 countries by id
@@ -252,7 +274,8 @@ app.get('/news/:newspaperId', async(req,res) =>{
 
 })
 
-app.get('/china/:newspaperId', async(req,res) =>{
+
+app.get('/china/:newspaperId', (req,res) =>{
     //fetches data based on the newpaperId inputted
     const newspaperId = req.params.newspaperId
     const newspaperAddress = newspaper.filter(newspaper => newspaper.name == newspaperId)[0].address
@@ -283,7 +306,9 @@ app.get('/china/:newspaperId', async(req,res) =>{
 
 })
 
-app.get('/korea/:newspaperId', async(req,res) =>{
+//does not work
+
+app.get('/korea/:newspaperId', (req,res) =>{
     //fetches data based on the newpaperId inputted
     const newspaperId = req.params.newspaperId
     const newspaperAddress = newspaper.filter(newspaper => newspaper.name == newspaperId)[0].address
@@ -314,7 +339,7 @@ app.get('/korea/:newspaperId', async(req,res) =>{
 
 })
 
-app.get('/japan/:newspaperId', async(req,res) =>{
+app.get('/japan/:newspaperId', (req,res) =>{
     //fetches data based on the newpaperId inputted
     const newspaperId = req.params.newspaperId
     const newspaperAddress = newspaper.filter(newspaper => newspaper.name == newspaperId)[0].address
