@@ -15,4 +15,8 @@ There are 10 different requests that can be made to look for specific news. One 
 .../japan
 
 There are more options to filter the japan news by newspaper company. Example:
+
 .../japan/abc
+
+There are also many other options that can be filtered, look at the deployment into the rapid api.
+
