@@ -2,6 +2,8 @@
 
 This news API is deployed on heroku/rapid api. https://rapidapi.com/winsor-tse/api/east-china-news
 
+The Front End deployment can be seen here: https://east-asian-news-previewer.netlify.app/
+
 ## About
 This API, essientialy is a web scrapper that is able to parse through anchor tags in multiple newpaper websites and displays JSON data that is formatted like:
 
